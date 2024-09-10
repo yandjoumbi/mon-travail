@@ -33,7 +33,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Validate Packer template
-      run: packer validate packer.json
+      run: packer validate C:\Users\ydjou\workspace\mon-travail\packer\amazon-linux-2-ami.json.pkr.hcl
 
     - name: Build AMI
       run: packer build C:\Users\ydjou\workspace\mon-travail\packer\amazon-linux-2-ami.json.pkr.hcl
