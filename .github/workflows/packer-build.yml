@@ -32,11 +32,14 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
+    - name: Initialize Packer
+      run: packer init ../../packer/amazon-linux-2-ami.json.pkr.hcl
+
     - name: Validate Packer template
-      run: packer validate amazon-linux-2-ami.json.pkr.hcl
+      run: packer validate ../../packer/amazon-linux-2-ami.json.pkr.hcl
 
     - name: Build AMI
-      run: packer build amazon-linux-2-ami.json.pkr.hcl
+      run: packer build ../../packer/amazon-linux-2-ami.json.pkr.hcl
 
 
 
