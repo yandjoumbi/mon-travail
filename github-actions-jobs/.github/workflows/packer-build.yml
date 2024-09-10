@@ -3,11 +3,11 @@ name: Build AMI with Packer
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger on pull requests to the main branch
-  workflow_dispatch: # Allows manual trigger
+      - yannick  # Trigger on push to the main branch
+#  pull_request:
+#    branches:
+#      - main  # Trigger on pull requests to the main branch
+#  workflow_dispatch: # Allows manual trigger
 
 jobs:
   build-ami:
@@ -36,16 +36,6 @@ jobs:
       run: packer validate packer.json
 
     - name: Build AMI
-      run: packer build packer.json
+      run: packer build C:\Users\ydjou\workspace\mon-travail\packer\amazon-linux-2-ami.json.pkr.hcl
 
 
-#Step 1: Store Secrets in GitHub
-
-#Before setting up the workflow, you’ll need to store sensitive information like your AWS credentials as GitHub Secrets.
-
- #   Go to your repository on GitHub.
-  #  Click on Settings.
-  #  In the sidebar, click Secrets and variables > Actions.
-  #  Click New repository secret and add the following secrets:
-   #     AWS_ACCESS_KEY_ID
-    #    AWS_SECRET_ACCESS_KEY
