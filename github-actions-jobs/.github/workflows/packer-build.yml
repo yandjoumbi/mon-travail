@@ -1,0 +1,51 @@
+name: Build AMI with Packer
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build-ami:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install HashiCorp Packer
+      uses: hashicorp/setup-packer@v2
+      with:
+        version: '1.11.1'  # Specify the Packer version you're using
+
+    - name: Install unzip
+      run: sudo apt-get install unzip -y
+
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Validate Packer template
+      run: packer validate packer.json
+
+    - name: Build AMI
+      run: packer build packer.json
+
+
+#Step 1: Store Secrets in GitHub
+
+#Before setting up the workflow, you’ll need to store sensitive information like your AWS credentials as GitHub Secrets.
+
+ #   Go to your repository on GitHub.
+  #  Click on Settings.
+  #  In the sidebar, click Secrets and variables > Actions.
+  #  Click New repository secret and add the following secrets:
+   #     AWS_ACCESS_KEY_ID
+    #    AWS_SECRET_ACCESS_KEY
