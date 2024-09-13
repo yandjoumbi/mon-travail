@@ -73,7 +73,8 @@ build {
     "sudo ./aws/install",
     "rm -rf awscliv2.zip aws",
     "sudo amazon-linux-extras enable corretto11",
-    "sudo yum install -y java-11-amazon-corretto"
+    "sudo yum install -y java-11-amazon-corretto",
+      "sudo yum install -y git"
     ]
   }
 
