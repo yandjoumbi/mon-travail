@@ -37,6 +37,23 @@ variable "subnet_id"{
   default = "subnet-0e962654c615107c0"
 }
 
+# Docker credentials
+variable "docker_login" {
+  type    = string
+  default = "yandjoumbi"
+}
+
+variable "docker_password" {
+  type    = string
+  default = "Westland@1987"
+}
+
+variable "docker_registry" {
+  type    = string
+  default = "yandjoumbi"
+}
+
+
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
 locals {
@@ -74,7 +91,15 @@ build {
     "rm -rf awscliv2.zip aws",
     "sudo amazon-linux-extras enable corretto11",
     "sudo yum install -y java-11-amazon-corretto",
-      "sudo yum install -y git"
+      "sudo yum install -y git",
+
+      # Docker login and image pull terraform
+      "sudo docker login -u ${var.docker_login} -p ${var.docker_password} ${var.docker_registry}",
+      "sudo docker pull ${var.docker_registry}/custom-terraform-image:latest",
+
+      # Pull my custom portfolio image
+      "docker pull ${var.docker_registry}/yannick-portfolio:v3"
+
     ]
   }
 

@@ -1,0 +1,69 @@
+---
+- name: Docker Setup and Run Containers with Volume
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Ensure Docker is installed
+      package:
+        name: docker
+        state: present
+
+    - name: Ensure Docker Compose is installed
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_os_family | lower }}-amd64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Log in to Docker registry
+      docker_login:
+        registry: "{{ yandjoumbi }}"
+        username: "{{ yandjoumbi }}"
+        password: "{{ Westland@1987 }}"
+
+    - name: Vault volume
+      docker_volume:
+        name: my_volume
+        state: present
+
+    - name: Pull Docker images
+      docker_image:
+        name: "{{ item }}"
+        source: pull
+      loop:
+        - image1:tag
+        - image2:tag
+
+    - name: Create docker-compose.yml file
+      copy:
+        dest: /path/to/docker-compose.yml
+        content: |
+          version: '3'
+          services:
+            service1:
+              image: image1:tag
+              ports:
+                - "8080:80"
+              volumes:
+                - my_volume:/data
+            service2:
+              image: image2:tag
+              ports:
+                - "8081:80"
+              volumes:
+                - my_volume:/data
+            service3:
+              image: image3:tag
+              ports:
+                - "8082:80"
+              volumes:
+                - my_volume:/data
+
+          volumes:
+            my_volume:
+
+    - name: Run Docker Compose
+      docker_compose:
+        project_src: /path/to/
+        state: present
+
+#The project_src parameter in the docker_compose module specifies the path to the directory where the docker-compose.yml file is located
