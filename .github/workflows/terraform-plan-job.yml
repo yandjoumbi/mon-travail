@@ -1,7 +1,10 @@
 name: Terraform Pipeline
 
 on:
-  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+#  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+  push:
+      branches:
+        - test
 
 jobs:
   terraform:
