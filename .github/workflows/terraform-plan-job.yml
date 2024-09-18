@@ -1,9 +1,10 @@
 name: Terraform Pipeline
 
-#on:
+on:
 #  push:
 #    branches:
 #      - yannick
+  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
 
 jobs:
   terraform:
