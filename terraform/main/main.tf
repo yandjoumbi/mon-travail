@@ -4,7 +4,7 @@ provider "aws" {
 
 locals {
   instance_type = "t2.micro"
-  location      = "us-west-1"
+  location      = "us-west-2"
   environment   = "dev"
   vpc_cidr      = "10.123.0.0/16"
 }
@@ -16,7 +16,7 @@ module "networking" {
   public_sn_count  = 2
   private_sn_count = 2
   db_subnet_group  = true
-  availabilityzone = "us-west-1a"
+  availabilityzone = "us-west-2a"
   azs              = 2
   vpc_enabled      = true
 }
@@ -34,15 +34,15 @@ module "compute" {
   ssh_key                = "Three-Tier-Terraform"
   lb_tg_name             = module.loadbalancing.lb_tg_name
   lb_tg                  = module.loadbalancing.lb_tg
-  enable_autoscaling     = false
-  launch_template        = false
+  enable_autoscaling     = true
+  launch_template        = true
 }
 
 module "database" {
   source               = "../modules/database"
   db_storage           = 10
-  db_engine_version    = "8.0"
-  db_instance_class    = "db.t2.micro"
+  db_engine_version    = "8.0.35"
+  db_instance_class    = "db.t3.micro"
   db_name              = var.db_name
   dbuser               = var.dbuser
   dbpassword           = var.dbpassword

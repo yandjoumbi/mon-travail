@@ -1,0 +1,57 @@
+name: Upload Ansible Playbook to S3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - playbook.yml  # Trigger only if the playbook is changed
+
+jobs:
+  upload-playbook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2  # Change to your desired region
+
+      - name: Check if the playbook version has changed
+        id: version_check
+        run: |
+          # Get the current version from the playbook file
+          current_version=$(grep 'playbook_version' playbook.yml | cut -d '"' -f2)
+
+          # Download the existing playbook from S3
+          aws s3 cp s3://your-s3-bucket/playbook.yml playbook_s3.yml || echo "No existing playbook found"
+
+          # Get the version from the playbook in S3 (if it exists)
+          if [ -f "playbook_s3.yml" ]; then
+            s3_version=$(grep 'playbook_version' playbook_s3.yml | cut -d '"' -f2)
+          else
+            s3_version="none"
+          fi
+
+          echo "Current version: $current_version"
+          echo "S3 version: $s3_version"
+
+          # Set output for later steps
+          echo "::set-output name=current_version::$current_version"
+          echo "::set-output name=s3_version::$s3_version"
+
+      - name: Upload playbook to S3 if the version has changed
+        if: steps.version_check.outputs.current_version != steps.version_check.outputs.s3_version
+        run: |
+          aws s3 cp playbook.yml s3://your-s3-bucket/playbook.yml
+          echo "Playbook version has changed. Uploaded new playbook version to S3."
+
+      - name: Playbook version unchanged, no upload needed
+        if: steps.version_check.outputs.current_version == steps.version_check.outputs.s3_version
+        run: |
+          echo "Playbook version is the same. No upload necessary."
