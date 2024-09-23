@@ -20,7 +20,7 @@ jobs:
 
       - name: Run Ansible Playbook to Install Datadog Agent
         run: |
-          ansible-playbook -i inventory ansible-playbooks/install_datadog.yml
+          ansible-playbook -i inventory ../../ansible-playbooks/install_datadog.yml
         env:
           DD_API_KEY: ${{ secrets.DATADOG_API_KEY }}  # Get the API key from GitHub Secrets
           DD_SITE: "us5.datadoghq.com"  # You can set this directly or via secrets

@@ -14,12 +14,6 @@
         dest: /usr/local/bin/docker-compose
         mode: '0755'
 
-    - name: Log in to Docker registry
-      docker_login:
-        registry: "{{ yandjoumbi }}"
-        username: "{{ yandjoumbi }}"
-        password: "{{ Westland@1987 }}"
-
     - name: Vault volume
       docker_volume:
         name: my_volume
@@ -31,7 +25,6 @@
         source: pull
       loop:
         - image1:tag
-        - image2:tag
 
     - name: Create docker-compose.yml file
       copy:
