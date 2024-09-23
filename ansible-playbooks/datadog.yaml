@@ -3,10 +3,12 @@
   hosts: all
   become: yes
 
+  vars_files:
+    - secrets.yaml
+
   vars:
     datadog_api_key: "YOUR_DATADOG_API_KEY"  # Replace with your actual API key
     playbook_version: "1.0.0"
-    DD_API_KEY: "1e44394c2f9dc26dcba1a35ff3844816"
     DD_SITE: "us5.datadoghq.com"
     DD_url: "https://install.datadoghq.com/scripts/install_script_agent7.sh"
 
