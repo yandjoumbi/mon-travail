@@ -28,7 +28,7 @@
 
     - name: ensure Datadog agent is running
       systemd:
-        name: datadof-agent
+        name: datadog-agent
         state: started
         enabled: yes
 
