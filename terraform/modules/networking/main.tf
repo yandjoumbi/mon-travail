@@ -2,7 +2,7 @@ data "aws_availability_zones" "available" {
 }
 
 resource "aws_vpc" "three_tier_vpc" {
-  count = var.vpc_enabled ? 1 : O
+  count = var.vpc_enabled ? 1 : 0
   cidr_block = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support = true
@@ -18,8 +18,8 @@ resource "aws_vpc" "three_tier_vpc" {
 
 #Internet Gateway
 resource "aws_internet_gateway" "three_tier_igw" {
-  count = var.vpc_enabled ? 1 : O
-  vpc_id = aws_vpc.three_tier_vpc.id
+  count  = var.vpc_enabled ? 1 : 0
+  vpc_id = aws_vpc.three_tier_vpc[0].id
 
   tags = {
     Name = "igw-yannick"
@@ -33,9 +33,8 @@ resource "aws_internet_gateway" "three_tier_igw" {
 # Public subnets and associated Route tables
 resource "aws_subnet" "three_tier_public_subnet" {
   count = var.vpc_enabled ? var.public_sn_count : 0
-  vpc_id = aws_vpc.three_tier_vpc.id
+  vpc_id = aws_vpc.three_tier_vpc[0].id
   cidr_block = "10.123.${10 + count.index}.0/24"
-  map_customer_owned_ip_on_launch = true
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
@@ -44,7 +43,7 @@ resource "aws_subnet" "three_tier_public_subnet" {
 }
 
 resource "aws_route_table" "public_subnet_rt" {
-  vpc_id = aws_vpc.three_tier_vpc.id
+  vpc_id = aws_vpc.three_tier_vpc[0].id
 
   tags = {
     Name = "public-rt-yannick"
@@ -78,7 +77,7 @@ resource "aws_nat_gateway" "three_tier_ngw" {
 
 resource "aws_subnet" "three_tier_private_subnets" {
   count                   = var.vpc_enabled ? var.public_sn_count : 0
-  vpc_id                  = aws_vpc.three_tier_vpc.id
+  vpc_id                  = aws_vpc.three_tier_vpc[0].id
   cidr_block              = "10.123.${20 + count.index}.0/24"
   map_public_ip_on_launch = false
   availability_zone       = data.aws_availability_zones.available.names[count.index]
@@ -89,7 +88,7 @@ resource "aws_subnet" "three_tier_private_subnets" {
 }
 
 resource "aws_route_table" "three_tier_private_rt" {
-  vpc_id = aws_vpc.three_tier_vpc.id
+  vpc_id = aws_vpc.three_tier_vpc[0].id
 
   tags = {
     Name = "three_tier_private_yannick"
@@ -112,7 +111,7 @@ resource "aws_route_table_association" "three_tier_private_assoc" {
 
 resource "aws_subnet" "three_tier_private_subnets_db" {
   count                   = var.vpc_enabled ? var.public_sn_count : 0
-  vpc_id                  = aws_vpc.three_tier_vpc.id
+  vpc_id                  = aws_vpc.three_tier_vpc[0].id
   cidr_block              = "10.123.${40 + count.index}.0/24"
   map_public_ip_on_launch = false
   availability_zone       = data.aws_availability_zones.available.names[count.index]
@@ -127,7 +126,7 @@ resource "aws_subnet" "three_tier_private_subnets_db" {
 resource "aws_security_group" "three_tier_bastion_sg" {
   name        = "three_tier_bastion_sg"
   description = "Allow SSH Inbound Traffic From Set IP"
-  vpc_id      = aws_vpc.three_tier_vpc.id
+  vpc_id      = aws_vpc.three_tier_vpc[0].id
 
   ingress {
     from_port   = 22
@@ -148,7 +147,7 @@ resource "aws_security_group" "three_tier_bastion_sg" {
 resource "aws_security_group" "three_tier_lb_sg" {
   name        = "three_tier_lb_sg"
   description = "Allow Inbound HTTP Traffic"
-  vpc_id      = aws_vpc.three_tier_vpc.id
+  vpc_id      = aws_vpc.three_tier_vpc[0].id
 
   ingress {
     from_port   = 80
@@ -168,7 +167,7 @@ resource "aws_security_group" "three_tier_lb_sg" {
 resource "aws_security_group" "three_tier_frontend_app_sg" {
   name        = "three_tier_frontend_app_sg"
   description = "Allow SSH inbound traffic from Bastion, and HTTP inbound traffic from loadbalancer"
-  vpc_id      = aws_vpc.three_tier_vpc.id
+  vpc_id      = aws_vpc.three_tier_vpc[0].id
 
   ingress {
     from_port       = 22
@@ -194,7 +193,7 @@ resource "aws_security_group" "three_tier_frontend_app_sg" {
 
 resource "aws_security_group" "three_tier_backend_app_sg" {
   name        = "three_tier_backend_app_sg"
-  vpc_id      = aws_vpc.three_tier_vpc.id
+  vpc_id      = aws_vpc.three_tier_vpc[0].id
   description = "Allow Inbound HTTP from FRONTEND APP, and SSH inbound traffic from Bastion"
 
   ingress {
@@ -222,7 +221,7 @@ resource "aws_security_group" "three_tier_backend_app_sg" {
 resource "aws_security_group" "three_tier_rds_sg" {
   name        = "three-tier_rds_sg"
   description = "Allow MySQL Port Inbound Traffic from Backend App Security Group"
-  vpc_id      = aws_vpc.three_tier_vpc.id
+  vpc_id      = aws_vpc.three_tier_vpc[0].id
 
   ingress {
     from_port       = 3306
@@ -246,7 +245,7 @@ resource "aws_db_subnet_group" "three_tier_rds_subnetgroup" {
   count      = var.db_subnet_group == true ? 1 : 0
   name       = "three_tier_rds_subnetgroup"
   #subnet_ids = [aws_subnet.three_tier_private_subnets_db[0].id, aws_subnet.three_tier_private_subnets_db[1].id]
-  subnet_ids = [aws_subnet.three_tier_private_subnets_db.*.id]
+  subnet_ids = tolist(aws_subnet.three_tier_private_subnets_db.*.id)
 
   tags = {
     Name = "three_tier_rds_sng"

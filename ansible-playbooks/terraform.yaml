@@ -30,3 +30,7 @@
       file:
         path: "{{ terraform_bin_path }}"
         mode: '0755'
+
+ metadata:
+    version: "1.0.0"
+    description: "install terraform version 1.5.4"

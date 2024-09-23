@@ -5,49 +5,28 @@
 
   vars:
     datadog_api_key: "YOUR_DATADOG_API_KEY"  # Replace with your actual API key
+    playbook_version: "1.0.0"
+    DD_API_KEY: "1e44394c2f9dc26dcba1a35ff3844816"
+    DD_SITE: "us5.datadoghq.com"
+    DD_url: "https://install.datadoghq.com/scripts/install_script_agent7.sh"
 
   tasks:
-    - name: Install prerequisites
+    - name: Install necessary dependencies
       yum:
         name:
           - curl
-          - yum-utils
         state: present
 
-    - name: Add Datadog Yum repository
-      yum_repository:
-        name: datadog
-        description: "Datadog Agent Repository"
-        baseurl: "https://yum.datadoghq.com/stable/7/x86_64/"
-        gpgcheck: yes
-        gpgkey: "https://yum.datadoghq.com/DATADOG_RPM_KEY.public"
-        state: present
+    - name: Install Datadog agent 7
+      ansible.builtin.shell: |
+         DD_API_KEY={{ DD_API_KEY }} \
+         DD_SITE={{ DD_SITE }} \bash -c "$(curl -L {{ DD_url }})"
+      args:
+         executable: /bin/bash
 
-    - name: Install Datadog Agent
-      yum:
-        name: datadog-agent
-        state: present
-
-    - name: Configure Datadog Agent with your API key
-      template:
-        src: datadog.yaml.j2
-        dest: /etc/datadog-agent/datadog.yaml
-        owner: dd-agent
-        group: dd-agent
-        mode: 0644
-
-    - name: Enable and start Datadog Agent
-      service:
-        name: datadog-agent
-        enabled: yes
+    - name: ensure Datadog agent is running
+      systemd:
+        name: datadof-agent
         state: started
+        enabled: yes
 
-    - name: Ensure Datadog Agent is running
-      shell: systemctl is-active --quiet datadog-agent
-      register: datadog_running
-      ignore_errors: yes
-
-    - name: Fail if Datadog Agent is not running
-      fail:
-        msg: "Datadog Agent is not running"
-      when: datadog_running.rc != 0

@@ -1,6 +1,6 @@
 
 output "vpc_id" {
-  value = aws_vpc.three_tier_vpc.id
+  value = aws_vpc.three_tier_vpc[0].id
 }
 
 output "db_subnet_group_name" {
