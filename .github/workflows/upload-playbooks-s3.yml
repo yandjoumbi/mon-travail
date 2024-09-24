@@ -51,8 +51,10 @@ jobs:
 
         echo "Latest Playbook Version: $LATEST_VERSION"
         echo "Description: $LATEST_DESCRIPTION"
-        echo "::set-output name=latest_playbook_version::$LATEST_VERSION"
-        echo "::set-output name=latest_description::$LATEST_DESCRIPTION"
+#        echo "::set-output name=latest_playbook_version::$LATEST_VERSION"
+#        echo "::set-output name=latest_description::$LATEST_DESCRIPTION"
+        echo "latest_playbook_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+        echo "latest_description=$LATEST_DESCRIPTION" >> $GITHUB_OUTPUT
 
     - name: Get the current version from S3 (if any)
       id: get_s3_version
@@ -62,10 +64,10 @@ jobs:
         if [ -f "./s3_playbook_version.txt" ]; then
           S3_PLAYBOOK_VERSION=$(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
           echo "S3 Playbook Version: $S3_PLAYBOOK_VERSION"
-          echo "current latest version: ::set-output name=s3_playbook_version::$S3_PLAYBOOK_VERSION"
+          echo "s3_playbook_version=$S3_PLAYBOOK_VERSION" >> $GITHUB_OUTPUT
         else
           echo "No version file in S3, treating it as a new upload."
-          echo "::set-output name=s3_playbook_version::0.0.0"
+          echo "s3_playbook_version=0.0.0" >> $GITHUB_OUTPUT
         fi
 
     - name: Compare versions and decide to upload or not
@@ -76,10 +78,10 @@ jobs:
         echo "Local version: $PLAYBOOK_VERSION, S3 version: $S3_PLAYBOOK_VERSION"
         if [ "$PLAYBOOK_VERSION" != "$S3_PLAYBOOK_VERSION" ]; then
           echo "Newer version detected, proceeding with upload."
-          echo "::set-output name=should_upload::true"
+          echo "should_upload=true" >> $GITHUB_OUTPUT
         else
           echo "No newer version detected. Skipping upload."
-          echo "::set-output name=should_upload::false"
+          echo "should_upload=false" >> $GITHUB_OUTPUT
         fi
 
     - name: Upload playbook and version to S3
