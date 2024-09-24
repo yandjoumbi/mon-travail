@@ -28,8 +28,8 @@ jobs:
 
     - name: Verify file paths
       run: |
-        pwd
-        ls -l ../../ansible-playbooks/harshicorp/
+#        pwd
+#        ls -l ../../ansible-playbooks/harshicorp/
         echo "test"
 
 
