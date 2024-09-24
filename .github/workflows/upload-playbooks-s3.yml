@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - yannick  # Trigger the workflow when pushing to the main branch
+    paths:
+      - ansible-playbooks/harshicorp/**
 
 jobs:
   upload_playbook:
@@ -25,10 +27,10 @@ jobs:
         sudo ./aws/install --update
 
     - name: Verify file paths
-            run: |
-              pwd
-              ls -l ../../ansible-playbooks/harshicorp/
-              echo "test"
+       run: |
+         pwd
+         ls -l ../../ansible-playbooks/harshicorp/
+         echo "test"
 
 
     - name: Extract current version from playbook_version.txt
