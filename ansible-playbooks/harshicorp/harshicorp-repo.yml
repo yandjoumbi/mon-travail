@@ -9,20 +9,6 @@
     terraform_version: "terraform-1.7.3"
 
   tasks:
-
-    - name: Read playbook version and description from file
-          slurp:
-            src: playbook_version.txt
-          register: version_file
-
-        - name: Decode and parse the playbook version file
-          set_fact:
-            playbook_metadata: "{{ version_file.content | b64decode | from_yaml }}"
-
-        - name: Display the playbook version and description
-          debug:
-            msg: "Running playbook version: {{ playbook_metadata.version }} - {{ playbook_metadata.description }}"
-
     - name: Add harshicorp repo using yum repository
       yum_repository:
         name: hashicorp
