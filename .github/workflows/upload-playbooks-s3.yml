@@ -49,7 +49,7 @@ jobs:
       id: get_s3_version
       run: |
         echo "Checking version in S3..."
-        aws s3 cp s3://ansible-playbooks-yan/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
+        aws s3 cp s3://ansible-playbooks-yan/harshircorp/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
         if [ -f "./s3_playbook_version.txt" ]; then
           S3_PLAYBOOK_VERSION=$(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
           echo "S3 Playbook Version: $S3_PLAYBOOK_VERSION"
@@ -77,8 +77,8 @@ jobs:
       if: steps.version_check.outputs.should_upload == 'true'
       run: |
         echo "Uploading playbook and version file to S3..."
-        aws s3 cp ansible-playbooks/harshicorp/playbook_version.txt s3://ansible-playbooks-yan/playbook_version.txt
-        aws s3 cp ansible-playbooks/harshicorp/harshicorp-repo.yml s3://ansible-playbooks-yan/harshircorp-repo.yml
+        aws s3 cp ansible-playbooks/harshicorp/playbook_version.txt s3://ansible-playbooks-yan/harshircorp/playbook_version.txt
+        aws s3 cp ansible-playbooks/harshicorp/harshicorp-repo.yml s3://ansible-playbooks-yan/harshircorp/harshircorp-repo.yml
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
