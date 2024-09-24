@@ -83,6 +83,11 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+    - name: playbook version has not been changed
+      if: steps.version_check.outputs.should_upload == 'false'
+      run: |
+        echo "The version of the playbook has not changed"
+
 
 
 
