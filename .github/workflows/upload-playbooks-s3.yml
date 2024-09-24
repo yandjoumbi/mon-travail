@@ -54,7 +54,7 @@ jobs:
         echo "::set-output name=latest_playbook_version::$LATEST_VERSION"
         echo "::set-output name=latest_description::$LATEST_DESCRIPTION"
 
-        echo "{latest_playbook_version}=${$LATEST_VERSION}" >> $GITHUB_OUTPUT
+        echo "latest_playbook_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
 
     - name: Get the current version from S3 (if any)
