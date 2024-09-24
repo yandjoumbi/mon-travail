@@ -80,9 +80,11 @@ jobs:
     - name: Compare versions and decide to upload or not
       id: version_check
       run: |
-        PLAYBOOK_VERSION=${{ steps.extract_latest_version.outputs.latest_playbook_version }}
-        S3_PLAYBOOK_VERSION=${{ steps.get_s3_version.outputs.s3_playbook_version }}
+        PLAYBOOK_VERSION = "${{ steps.extract_latest_version.outputs.latest_playbook_version }}"
+        S3_PLAYBOOK_VERSION = "${{ steps.get_s3_version.outputs.s3_playbook_version }}"
+
         echo "Local version: $PLAYBOOK_VERSION, S3 version: $S3_PLAYBOOK_VERSION"
+
         if [ "$PLAYBOOK_VERSION" != "$S3_PLAYBOOK_VERSION" ]; then
           echo "Newer version detected, proceeding with upload."
           echo "should_upload=true" >> $GITHUB_OUTPUT
