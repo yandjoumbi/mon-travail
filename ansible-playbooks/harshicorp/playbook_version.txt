@@ -3,3 +3,6 @@ description: "Initial version that installs HashiCorp repo and Terraform 1.2.6"
 
 version: 1.0.2
 description: "added changes"
+
+version: 1.0.3
+description: "new changes"
