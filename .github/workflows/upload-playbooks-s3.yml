@@ -3,7 +3,7 @@ name: Upload Ansible Playbook to S3
 on:
   push:
     branches:
-      - yannick  # Trigger the workflow when pushing to the main branch
+      - yannick
 
 jobs:
   upload_playbook:
@@ -23,38 +23,31 @@ jobs:
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         sudo ./aws/install --update
-
     - name: Set up AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
+
     - name: Extract the latest version from playbook_version.txt
       id: extract_latest_version
       run: |
         echo "Reading all versions and descriptions..."
-
         mapfile -t versions < <(grep '^version:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d ' ' -f 2)
         mapfile -t descriptions < <(grep '^description:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d '"' -f 2)
-
         # Find the highest version number using sort and select the last element
         LATEST_VERSION=$(printf "%s\n" "${versions[@]}" | sort -V | tail -n 1)
-
         for i in "${!versions[@]}"; do
           if [[ "${versions[i]}" == "$LATEST_VERSION" ]]; then
             LATEST_DESCRIPTION=${descriptions[i]}
             break
           fi
         done
-
         echo "Latest Playbook Version: $LATEST_VERSION"
         echo "Description: $LATEST_DESCRIPTION"
-#        echo "::set-output name=latest_playbook_version::$LATEST_VERSION"
-#        echo "::set-output name=latest_description::$LATEST_DESCRIPTION"
-        echo "latest_playbook_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-        echo "latest_description=$LATEST_DESCRIPTION" >> $GITHUB_OUTPUT
-
+        echo "::set-output name=latest_playbook_version::$LATEST_VERSION"
+        echo "::set-output name=latest_description::$LATEST_DESCRIPTION"
     - name: Get the current version from S3 (if any)
       id: get_s3_version
       run: |
@@ -63,12 +56,11 @@ jobs:
         if [ -f "./s3_playbook_version.txt" ]; then
           S3_PLAYBOOK_VERSION=$(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
           echo "S3 Playbook Version: $S3_PLAYBOOK_VERSION"
-          echo "s3_playbook_version=$S3_PLAYBOOK_VERSION" >> $GITHUB_OUTPUT
+          echo "current latest version: ::set-output name=s3_playbook_version::$S3_PLAYBOOK_VERSION"
         else
           echo "No version file in S3, treating it as a new upload."
-          echo "s3_playbook_version=0.0.0" >> $GITHUB_OUTPUT
+          echo "::set-output name=s3_playbook_version::0.0.0"
         fi
-
     - name: Compare versions and decide to upload or not
       id: version_check
       run: |
@@ -77,12 +69,11 @@ jobs:
         echo "Local version: $PLAYBOOK_VERSION, S3 version: $S3_PLAYBOOK_VERSION"
         if [ "$PLAYBOOK_VERSION" != "$S3_PLAYBOOK_VERSION" ]; then
           echo "Newer version detected, proceeding with upload."
-          echo "should_upload=true" >> $GITHUB_OUTPUT
+          echo "::set-output name=should_upload::true"
         else
           echo "No newer version detected. Skipping upload."
-          echo "should_upload=false" >> $GITHUB_OUTPUT
+          echo "::set-output name=should_upload::false"
         fi
-
     - name: Upload playbook and version to S3
       if: steps.version_check.outputs.should_upload == 'true'
       run: |
