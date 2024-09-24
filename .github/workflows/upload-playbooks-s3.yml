@@ -77,12 +77,11 @@ jobs:
       if: steps.version_check.outputs.should_upload == 'true'
       run: |
         echo "Uploading playbook and version file to S3..."
-        aws s3 cp ../../ansible-playbooks/harshicorp/playbook_version.txt s3://ansible-playbooks-yan/playbook_version.txt
-        aws s3 cp ../../ansible-playbooks/harshicorp/harshircorp-repo.yml s3://ansible-playbooks-yan/harshircorp-repo.yml
+        aws s3 cp ansible-playbooks/harshicorp/playbook_version.txt s3://ansible-playbooks-yan/playbook_version.txt
+        aws s3 cp ansible-playbooks/harshicorp/harshircorp-repo.yml s3://ansible-playbooks-yan/harshircorp-repo.yml
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEBUG: 1
 
 
 
