@@ -74,9 +74,6 @@ jobs:
         fi
 
     - name: Upload playbook and version to S3
-      if: steps.version_check.outputs.should_upload == 'false'
-      run: |
-        echo "The version of the playbook has not changed"
       if: steps.version_check.outputs.should_upload == 'true'
       run: |
         echo "Uploading playbook and version file to S3..."
