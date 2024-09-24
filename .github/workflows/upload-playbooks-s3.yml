@@ -34,16 +34,29 @@ jobs:
     - name: List files in directory
       run: ls -R ansible-playbooks/harshicorp/*
 
-    - name: Extract current version from playbook_version.txt
-      id: extract_version
+    - name: Extract the latest version from playbook_version.txt
+      id: extract_latest_version
       run: |
-        echo "Reading version and description..."
-        PLAYBOOK_VERSION=$(grep '^version:' playbook_version.txt | cut -d ' ' -f 2)
-        DESCRIPTION=$(grep '^description:' playbook_version.txt | cut -d '"' -f 2)
-        echo "Playbook Version: $PLAYBOOK_VERSION"
-        echo "Description: $DESCRIPTION"
-        echo "::set-output name=playbook_version::$PLAYBOOK_VERSION"
-        echo "::set-output name=description::$DESCRIPTION"
+        echo "Reading all versions and descriptions..."
+
+        mapfile -t versions < <(grep '^version:' playbook_version.txt | cut -d ' ' -f 2)
+        mapfile -t descriptions < <(grep '^description:' playbook_version.txt | cut -d '"' -f 2)
+
+        # Find the highest version number using sort and select the last element
+        LATEST_VERSION=$(printf "%s\n" "${versions[@]}" | sort -V | tail -n 1)
+
+        for i in "${!versions[@]}"; do
+          if [[ "${versions[i]}" == "$LATEST_VERSION" ]]; then
+            LATEST_DESCRIPTION=${descriptions[i]}
+            break
+          fi
+        done
+
+        echo "Latest Playbook Version: $LATEST_VERSION"
+        echo "Description: $LATEST_DESCRIPTION"
+        echo "::set-output name=latest_playbook_version::$LATEST_VERSION"
+        echo "::set-output name=latest_description::$LATEST_DESCRIPTION"
+
 
     - name: Get the current version from S3 (if any)
       id: get_s3_version
