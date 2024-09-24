@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - yannick  # Trigger the workflow when pushing to the main branch
-    paths:
-      - ansible-playbooks/harshicorp/**
 
 jobs:
   upload_playbook:
