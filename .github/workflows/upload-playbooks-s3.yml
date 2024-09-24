@@ -32,7 +32,7 @@ jobs:
         aws-region: us-west-2
 
     - name: List files in directory
-      run: ls -R ../../ansible-playbooks/harshicorp
+      run: ls -R ../ansible-playbooks/harshicorp/*
 
     - name: Extract current version from playbook_version.txt
       id: extract_version
