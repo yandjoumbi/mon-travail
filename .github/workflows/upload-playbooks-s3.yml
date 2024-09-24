@@ -26,11 +26,11 @@ jobs:
         unzip awscliv2.zip
         sudo ./aws/install --update
 
-    - name: Verify file paths
-      run: |
-#        pwd
-#        ls -l ../../ansible-playbooks/harshicorp/
-        echo "test"
+#    - name: Verify file paths
+#      run: |
+##        pwd
+##        ls -l ../../ansible-playbooks/harshicorp/
+#        echo "test"
 
 
     - name: Extract current version from playbook_version.txt
