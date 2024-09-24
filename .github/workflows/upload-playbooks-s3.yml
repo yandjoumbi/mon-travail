@@ -61,14 +61,21 @@ jobs:
       run: |
         echo "Checking version in S3..."
         aws s3 cp s3://ansible-playbooks-yan/harshircorp/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
+
         if [ -f "./s3_playbook_version.txt" ]; then
-          S3_PLAYBOOK_VERSION=$(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
-          echo "S3 Playbook Version: $S3_PLAYBOOK_VERSION"
-          echo "s3_playbook_version=$S3_PLAYBOOK_VERSION" >> $GITHUB_OUTPUT
+        # Extract all versions from the file
+        mapfile -t s3_versions < <(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
+
+        # Find the latest version using sort
+        S3_LATEST_VERSION=$(printf "%s\n" "${s3_versions[@]}" | sort -V | tail -n 1)
+
+        echo "S3 Latest Playbook Version: $S3_LATEST_VERSION"
+        echo "s3_playbook_version=$S3_LATEST_VERSION" >> $GITHUB_OUTPUT
         else
           echo "No version file in S3, treating it as a new upload."
           echo "s3_playbook_version=0.0.0" >> $GITHUB_OUTPUT
         fi
+
 
     - name: Compare versions and decide to upload or not
       id: version_check
