@@ -91,6 +91,7 @@ jobs:
         else
           echo "No newer version detected. Skipping upload."
           echo "should_upload=false" >> $GITHUB_OUTPUT
+        fi
 
     - name: Upload playbook and version to S3
       if: steps.version_check.outputs.should_upload == 'true'
