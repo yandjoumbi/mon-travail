@@ -74,6 +74,9 @@ jobs:
         fi
 
     - name: Upload playbook and version to S3
+      if: steps.version_check.outputs.should_upload == 'false'
+      run: |
+        echo "The version of the playbook has not changed"
       if: steps.version_check.outputs.should_upload == 'true'
       run: |
         echo "Uploading playbook and version file to S3..."
@@ -82,11 +85,6 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-    - name: playbook version has not been changed
-      if: steps.version_check.outputs.should_upload == 'false'
-      run: |
-        echo "The version of the playbook has not changed"
 
 
 
