@@ -31,16 +31,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
 
-    - name: List files in directory
-      run: ls -R ansible-playbooks/harshicorp/*
-
     - name: Extract the latest version from playbook_version.txt
       id: extract_latest_version
       run: |
         echo "Reading all versions and descriptions..."
 
-        mapfile -t versions < <(grep '^version:' playbook_version.txt | cut -d ' ' -f 2)
-        mapfile -t descriptions < <(grep '^description:' playbook_version.txt | cut -d '"' -f 2)
+        mapfile -t versions < <(grep '^version:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d ' ' -f 2)
+        mapfile -t descriptions < <(grep '^description:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d '"' -f 2)
 
         # Find the highest version number using sort and select the last element
         LATEST_VERSION=$(printf "%s\n" "${versions[@]}" | sort -V | tail -n 1)
