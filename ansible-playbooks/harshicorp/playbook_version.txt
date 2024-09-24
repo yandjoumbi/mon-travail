@@ -1,0 +1,2 @@
+version: 1.0.0
+description: "Initial version that installs HashiCorp repo and Terraform 1.2.6"

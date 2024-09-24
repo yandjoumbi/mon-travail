@@ -1,65 +1,74 @@
-name: Upload Ansible Playbooks to S3
+name: Upload Ansible Playbook to S3
 
 on:
   push:
     branches:
-      - main
-    paths:
-      - 'ansible-playbooks/**.yaml'  # Trigger on changes to playbooks in the 'playbooks' directory
+      - yannick  # Trigger the workflow when pushing to the main branch
 
 jobs:
-  upload-playbooks:
+  upload_playbook:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Setup AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2  # Change to your desired region
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Loop through playbooks and check versions
-        run: |
-          # Set the S3 bucket name
-          S3_BUCKET="ansible-playbooks-yannick"
+    - name: Install AWS CLI
+      run: |
+        sudo apt-get install -y awscli
 
-          # Loop through all playbook files in the playbooks directory
-          for playbook in ansible-playbooks/*.yml; do
-            echo "Checking version for $playbook"
+    - name: Extract current version from playbook_version.txt
+      id: extract_version
+      run: |
+        echo "Reading version and description..."
+        PLAYBOOK_VERSION=$(grep '^version:' playbook_version.txt | cut -d ' ' -f 2)
+        DESCRIPTION=$(grep '^description:' playbook_version.txt | cut -d '"' -f 2)
+        echo "Playbook Version: $PLAYBOOK_VERSION"
+        echo "Description: $DESCRIPTION"
+        echo "::set-output name=playbook_version::$PLAYBOOK_VERSION"
+        echo "::set-output name=description::$DESCRIPTION"
 
-            # Extract the current version from the local playbook file
-            current_version=$(grep 'playbook_version' "$playbook" | cut -d '"' -f2)
+    - name: Get the current version from S3 (if any)
+      id: get_s3_version
+      run: |
+        echo "Checking version in S3..."
+        aws s3 cp s3://ansible-playbooks-yannick/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
+        if [ -f "./s3_playbook_version.txt" ]; then
+          S3_PLAYBOOK_VERSION=$(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
+          echo "S3 Playbook Version: $S3_PLAYBOOK_VERSION"
+          echo "::set-output name=s3_playbook_version::$S3_PLAYBOOK_VERSION"
+        else
+          echo "No version file in S3, treating it as a new upload."
+          echo "::set-output name=s3_playbook_version::0.0.0"
+        fi
 
-            # Define the corresponding playbook file in S3
-            s3_playbook="s3://$S3_BUCKET/$playbook"
+    - name: Compare versions and decide to upload or not
+      id: version_check
+      run: |
+        PLAYBOOK_VERSION=${{ steps.extract_version.outputs.playbook_version }}
+        S3_PLAYBOOK_VERSION=${{ steps.get_s3_version.outputs.s3_playbook_version }}
+        echo "Local version: $PLAYBOOK_VERSION, S3 version: $S3_PLAYBOOK_VERSION"
+        if [ "$PLAYBOOK_VERSION" != "$S3_PLAYBOOK_VERSION" ]; then
+          echo "Newer version detected, proceeding with upload."
+          echo "::set-output name=should_upload::true"
+        else
+          echo "No newer version detected. Skipping upload."
+          echo "::set-output name=should_upload::false"
+        fi
 
-            # Download the playbook from S3 if it exists, or create an empty file if it doesn't
-            aws s3 cp "$s3_playbook" playbook_s3.yml || touch playbook_s3.yml
-
-            # Extract the version from the playbook in S3 (if it exists)
-            if grep -q 'playbook_version' playbook_s3.yml; then
-              s3_version=$(grep 'playbook_version' playbook_s3.yml | cut -d '"' -f2)
-            else
-              s3_version="none"
-            fi
-
-            # Print the current and S3 versions for debugging
-            echo "Local version: $current_version, S3 version: $s3_version"
-
-            # Upload the playbook to S3 if the version has changed
-            if [ "$current_version" != "$s3_version" ]; then
-              echo "Version has changed. Uploading $playbook to S3..."
-              aws s3 cp "$playbook" "$s3_playbook"
-            else
-              echo "Version is the same. No upload needed for $playbook."
-            fi
-
-            # Clean up temporary file
-            rm -f playbook_s3.yml
-          done
+    - name: Upload playbook and version to S3
+      if: steps.version_check.outputs.should_upload == 'true'
+      run: |
+        echo "Uploading playbook and version file to S3..."
+        aws s3 cp ../../ansible-playbooks/harshicorp/playbook_version.txt s3://ansible-playbooks-yannick/playbook_version.txt
+        aws s3 cp ../../ansible-playbooks/harshicorp/harshircorp-repo.yml s3://ansible-playbooks-yannick/harshircorp-repo.yml
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
