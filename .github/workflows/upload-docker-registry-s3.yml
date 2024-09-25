@@ -1,0 +1,119 @@
+name: Upload Ansible
+
+on:
+  push:
+    branches:
+      - yannick  # Trigger the workflow when pushing to the specified branch
+
+jobs:
+  upload_playbook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install AWS CLI v2
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Extract the latest version from playbook_version.txt
+        id: extract_latest_version
+        run: |
+          echo "Reading all versions and descriptions..."
+          mapfile -t versions < <(grep '^version:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d ' ' -f 2)
+          mapfile -t descriptions < <(grep '^description:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d '"' -f 2)
+
+          # Find the highest version number using sort and select the last element
+          LATEST_VERSION=$(printf "%s\n" "${versions[@]}" | sort -V | tail -n 1)
+
+          for i in "${!versions[@]}"; do
+            if [[ "${versions[i]}" == "$LATEST_VERSION" ]]; then
+              LATEST_DESCRIPTION=${descriptions[i]}
+              break
+            fi
+          done
+
+          echo "Latest Playbook Version: $LATEST_VERSION"
+          echo "Description: $LATEST_DESCRIPTION"
+
+          # Use environment file to pass outputs to the next steps
+          echo "latest_playbook_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "latest_description=$LATEST_DESCRIPTION" >> $GITHUB_OUTPUT
+
+      - name: Get the current version from S3 (if any)
+        id: get_s3_version
+        run: |
+          echo "Checking version in S3..."
+          aws s3 cp s3://ansible-playbooks-yan/harshircorp/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
+
+          if [ -f "./s3_playbook_version.txt" ]; then
+            # Extract all versions from the file
+            mapfile -t s3_versions < <(grep '^version:' s3_playbook_version.txt | cut -d ' ' -f 2)
+
+            # Find the latest version using sort
+            S3_LATEST_VERSION=$(printf "%s\n" "${s3_versions[@]}" | sort -V | tail -n 1)
+            echo "S3 Latest Playbook Version: $S3_LATEST_VERSION"
+            echo "s3_playbook_version=$S3_LATEST_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "No version file in S3, treating it as a new upload."
+            echo "s3_playbook_version=0.0.0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compare versions and decide to upload or not
+        id: version_check
+        run: |
+          PLAYBOOK_VERSION="${{ steps.extract_latest_version.outputs.latest_playbook_version }}"
+          S3_PLAYBOOK_VERSION="${{ steps.get_s3_version.outputs.s3_playbook_version }}"
+
+          echo "Local version: $PLAYBOOK_VERSION, S3 version: $S3_PLAYBOOK_VERSION"
+
+          if [ "$PLAYBOOK_VERSION" != "$S3_PLAYBOOK_VERSION" ]; then
+            echo "Newer version detected, proceeding with upload."
+            echo "should_upload=true" >> $GITHUB_OUTPUT
+          else
+            echo "No newer version detected. Skipping upload."
+            echo "should_upload=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload playbook and version to S3
+        if: steps.version_check.outputs.should_upload == 'true'
+        run: |
+          echo "Uploading playbook and version file to S3..."
+          aws s3 cp ansible-playbooks/harshicorp/playbook_version.txt \
+            s3://ansible-playbooks-yan/harshircorp/playbook_version.txt
+          aws s3 cp ansible-playbooks/harshicorp/harshircorp-repo.yml \
+            s3://ansible-playbooks-yan/harshircorp/harshircorp-repo-${{ steps.extract_latest_version.outputs.latest_playbook_version }}.yml
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@ name: Upload Ansible Playbook to S3
 on:
   push:
     branches:
-      - yannick  # Trigger the workflow when pushing to the specified branch
+      - yan  # Trigger the workflow when pushing to the specified branch
 
 jobs:
   upload_playbook:
