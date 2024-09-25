@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    base_url: "https://rpm.releases.hashicorp.com/AmazonLinux/2023/x86_64/stable"
+    base_url: "https://rpm.releases.hashicorp.com/AmazonLinux/2/x86_64/stable"
     gpgkey: "https://rpm.releases.hashicorp.com/gpg"
     terraform_version: "terraform-1.7.3"
 
