@@ -1,4 +1,4 @@
-name: Upload Ansible
+name: Upload docker registry to S3
 
 on:
   push:
@@ -35,8 +35,8 @@ jobs:
         id: extract_latest_version
         run: |
           echo "Reading all versions and descriptions..."
-          mapfile -t versions < <(grep '^version:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d ' ' -f 2)
-          mapfile -t descriptions < <(grep '^description:' ansible-playbooks/harshicorp/playbook_version.txt | cut -d '"' -f 2)
+          mapfile -t versions < <(grep '^version:' ansible-playbooks/docker-registry/playbook_version.txt | cut -d ' ' -f 2)
+          mapfile -t descriptions < <(grep '^description:' ansible-playbooks/docker-registry/playbook_version.txt | cut -d '"' -f 2)
 
           # Find the highest version number using sort and select the last element
           LATEST_VERSION=$(printf "%s\n" "${versions[@]}" | sort -V | tail -n 1)
@@ -59,7 +59,7 @@ jobs:
         id: get_s3_version
         run: |
           echo "Checking version in S3..."
-          aws s3 cp s3://ansible-playbooks-yan/harshircorp/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
+          aws s3 cp s3://ansible-playbooks-yan/docker-registry/playbook_version.txt ./s3_playbook_version.txt || echo "No existing version in S3"
 
           if [ -f "./s3_playbook_version.txt" ]; then
             # Extract all versions from the file
@@ -94,10 +94,10 @@ jobs:
         if: steps.version_check.outputs.should_upload == 'true'
         run: |
           echo "Uploading playbook and version file to S3..."
-          aws s3 cp ansible-playbooks/harshicorp/playbook_version.txt \
-            s3://ansible-playbooks-yan/harshircorp/playbook_version.txt
-          aws s3 cp ansible-playbooks/harshicorp/harshircorp-repo.yml \
-            s3://ansible-playbooks-yan/harshircorp/harshircorp-repo-${{ steps.extract_latest_version.outputs.latest_playbook_version }}.yml
+          aws s3 cp ansible-playbooks/docker-registry/playbook_version.txt \
+            s3://ansible-playbooks-yan/docker-registry/playbook_version.txt
+          aws s3 cp ansible-playbooks/docker-registry/docker-registry.yml \
+            s3://ansible-playbooks-yan/docker-registry/docker-registry-${{ steps.extract_latest_version.outputs.latest_playbook_version }}.yml
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
