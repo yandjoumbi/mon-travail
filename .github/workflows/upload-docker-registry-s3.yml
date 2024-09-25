@@ -97,7 +97,7 @@ jobs:
           aws s3 cp ansible-playbooks/docker-registry/playbook_version.txt \
             s3://ansible-playbooks-yan/docker-registry/playbook_version.txt
           aws s3 cp ansible-playbooks/docker-registry/docker-registry.yml \
-            s3://ansible-playbooks-yan/docker-registry/docker-registry-${{ steps.extract_latest_version.outputs.latest_playbook_version }}.yml
+            s3://ansible-playbooks-yan/docker-registry/docker-registry-${{ steps.extract_latest_version.outputs.latest_playbook_version }}.yaml
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
