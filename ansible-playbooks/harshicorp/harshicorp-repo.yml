@@ -6,15 +6,15 @@
   vars:
     base_url: "https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo"
     gpgkey: "https://rpm.releases.hashicorp.com/gpg"
-    terraform_version: "terraform-1.7.3"
+    terraform_version: terraform-1.7.3
 
   tasks:
     - name: Add harshicorp repo using yum repository
       yum_repository:
         name: hashicorp
         description: "HashiCorp Stable - $basearch"
-        baseurl: {{ base_url }}
-        gpgkey: {{ gpgkey }}
+        baseurl: "{{ base_url }}"
+        gpgkey: "{{ gpgkey }}"
         enabled: yes
         state: present
 
