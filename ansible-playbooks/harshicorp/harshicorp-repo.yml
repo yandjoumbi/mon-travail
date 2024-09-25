@@ -20,7 +20,7 @@
 
     - name: Install a specific version of terraform
       yum:
-        name: {{ terraform_version }}
+        name: "{{ terraform_version }}"
         state: present
 
     - name: Verify terraform version
