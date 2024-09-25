@@ -27,6 +27,11 @@
       command: terraform --version
       register: terraform_version_output
 
-    - name: Display Terraform version
-      debug:
-        msg: "{{terraform_version_output}}"
+    - name: Log execution to a file
+          copy:
+            content: "{{ terraform_version_output.stdout }}"
+            dest: /var/log/yannick.log
+
+#    - name: Display Terraform version
+#      debug:
+#        msg: "{{terraform_version_output}}"
