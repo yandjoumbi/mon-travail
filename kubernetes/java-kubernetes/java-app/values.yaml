@@ -1,0 +1,12 @@
+datadog:
+  apiKey: 73bb297ba026c2cdaced9a844ed6ca94
+  site: datadoghq.com  # Change to datadoghq.eu if you're in the EU
+agents:
+  enabled: true
+  containerLogs:
+    enabled: true
+  kubeStateMetricsEnabled: true
+clusterAgent:
+  enabled: true
+  replicas: 2
+  createPodDisruptionBudget: true

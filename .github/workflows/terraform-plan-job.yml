@@ -4,7 +4,7 @@ on:
 #  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
   push:
       branches:
-        - test
+        - yannick
 
 jobs:
   terraform:
@@ -31,7 +31,7 @@ jobs:
 
       # Navigate to the Terraform directory
       - name: Navigate to Terraform directory
-        run: cd terraform
+        run: cd terraform/test
 
       # Terraform Init
       - name: Terraform Init
