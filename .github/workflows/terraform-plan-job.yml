@@ -36,12 +36,12 @@ jobs:
       # Terraform Init
       - name: Terraform Init
         run: terraform init
-        working-directory: ./terraform
+        working-directory: terraform/test
 
       # Terraform Plan
       - name: Terraform Plan
         run: terraform plan
-        working-directory: ./terraform
+        working-directory: terraform/test
 
       # Terraform Apply (only on push, not on pull request)
       - name: Terraform Apply
