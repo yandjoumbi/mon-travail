@@ -38,7 +38,7 @@ resource "aws_security_group" "nginx_sg" {
 resource "aws_instance" "nginx_instance" {
   ami           = "ami-05134c8ef96964280" # ubuntu server
   instance_type = var.instance_type
-  key_name      = var.key_name
+  key_name      = data.aws_key_pair.key_name
   security_groups = [aws_security_group.nginx_sg.name]
 
   user_data = <<-EOF
