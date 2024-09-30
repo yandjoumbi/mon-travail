@@ -44,7 +44,7 @@ jobs:
         working-directory: terraform/test
 
       # Terraform Apply (only on push, not on pull request)
-      - name: Terraform Apply
-        if: github.event_name == 'push'
-        run: terraform apply -auto-approve
-        working-directory: ./terraform
+#      - name: Terraform Apply
+#        if: github.event_name == 'push'
+#        run: terraform apply -auto-approve
+#        working-directory: ./terraform
