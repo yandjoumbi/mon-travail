@@ -31,17 +31,17 @@ jobs:
 
       # Navigate to the Terraform directory
       - name: Navigate to Terraform directory
-        run: cd terraform
+        run: cd terraform/main
 
       # Terraform Init
       - name: Terraform Init
         run: terraform init
-        working-directory: terraform
+        working-directory: terraform/main
 
       # Terraform Plan
       - name: Terraform Plan
         run: terraform plan
-        working-directory: terraform
+        working-directory: terraform/main
 
       # Terraform Apply (only on push, not on pull request)
 #      - name: Terraform Apply
