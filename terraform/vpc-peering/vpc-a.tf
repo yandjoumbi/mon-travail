@@ -7,7 +7,6 @@ locals {
 }
 
 resource "aws_vpc" "vpc_a" {
-  count = var.vpc_enabled ? 1 : 0
   cidr_block = "10.0.0.0/16"
 
   tags = {

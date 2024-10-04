@@ -3,7 +3,7 @@ name: Upload docker registry to S3
 on:
   push:
     branches:
-      - yannick  # Trigger the workflow when pushing to the specified branch
+      - ya  # Trigger the workflow when pushing to the specified branch
 
 jobs:
   upload_playbook:
