@@ -48,6 +48,16 @@ resource "aws_route_table" "route_table" {
     gateway_id = aws_internet_gateway.igw.id
   }
 
+  route {
+    cidr_block = "10.1.0.0/16"
+    vpc_peering_connection_id = aws_vpc_peering_connection.connection_a_to_b.id
+  }
+
+  route {
+    cidr_block = "10.2.0.0/16"
+    vpc_peering_connection_id = aws_vpc_peering_connection.connection_a_to_c.id
+  }
+
   tags = {
     Name = "Route table A"
   }
