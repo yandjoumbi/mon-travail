@@ -27,6 +27,7 @@ resource "aws_vpc_peering_connection" "connection_b_to_a" {
   }
 }
 
+
 resource "aws_vpc_peering_connection" "connection_b_to_c" {
   peer_vpc_id = aws_vpc.vpc_c.id
   vpc_id    = aws_vpc.vpc_b.id
