@@ -31,17 +31,17 @@ jobs:
 
       # Navigate to the Terraform directory
       - name: Navigate to Terraform directory
-        run: cd terraform/main
+        run: cd terraform/vpc-peering
 
       # Terraform Init
       - name: Terraform Init
         run: terraform init
-        working-directory: terraform/main
+        working-directory: terraform/vpc-peering
 
       # Terraform Plan
       - name: Terraform Plan
         run: terraform plan
-        working-directory: terraform/main
+        working-directory: terraform/vpc-peering
 
       # Terraform Apply (only on push, not on pull request)
 #      - name: Terraform Apply
