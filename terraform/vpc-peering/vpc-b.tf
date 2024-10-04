@@ -59,3 +59,56 @@ resource "aws_route_table_association" "route_table_association_b" {
   route_table_id = aws_route_table.route_table_b.id
   subnet_id = aws_subnet.subnet_b_1.id
 }
+
+resource "aws_instance" "server_b" {
+  ami = "ami-04dd23e62ed049936"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.subnet_b_1.id
+  key_name = data.aws_key_pair.key_pair.key_name
+  security_groups = [aws_security_group.server_sg_b.id]
+  user_data = <<-EOF
+  #!/bin/bash
+  sudo apt update -y
+  EOF
+
+  tags = {
+    Name = "Server B"
+  }
+}
+
+resource "aws_security_group" "server_sg_b" {
+  name        = "server-b-security-group"
+  description = "Allow SSH and HTTP traffic"
+  vpc_id      = aws_vpc.vpc_b.id
+
+  ingress {
+    description = "Allow SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow HTTPS"
+    from_port = 443
+    protocol  = "tcp"
+    to_port   = 443
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
