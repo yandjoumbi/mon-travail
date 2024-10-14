@@ -9,7 +9,7 @@ resource "aws_vpc" "vpc_c" {
 }
 
 resource "aws_subnet" "subnet_c_1" {
-  vpc_id = aws_vpc.vpc_c.id
+  vpc_id     = aws_vpc.vpc_c.id
   cidr_block = "10.2.0.0/24"
 
   tags = {
@@ -18,7 +18,7 @@ resource "aws_subnet" "subnet_c_1" {
 }
 
 resource "aws_subnet" "subnet_c_2" {
-  vpc_id = aws_vpc.vpc_c.id
+  vpc_id     = aws_vpc.vpc_c.id
   cidr_block = "10.2.1.0/24"
 
   tags = {
@@ -43,12 +43,12 @@ resource "aws_route_table" "route_table_c" {
   }
 
   route {
-    cidr_block = "10.0.0.0/16"
+    cidr_block                = "10.0.0.0/16"
     vpc_peering_connection_id = aws_vpc_peering_connection.connection_c_to_a.id
   }
 
   route {
-    cidr_block = "10.1.0.0/16"
+    cidr_block                = "10.1.0.0/16"
     vpc_peering_connection_id = aws_vpc_peering_connection.connection_c_to_b.id
   }
 
@@ -59,16 +59,17 @@ resource "aws_route_table" "route_table_c" {
 
 resource "aws_route_table_association" "route_table_association_c" {
   route_table_id = aws_route_table.route_table_c.id
-  subnet_id = aws_subnet.subnet_c_1.id
+  subnet_id      = aws_subnet.subnet_c_1.id
 }
 
 resource "aws_instance" "server_c" {
-  ami = "ami-04dd23e62ed049936"
-  instance_type = "t2.micro"
-  subnet_id = aws_subnet.subnet_c_1.id
-  key_name = data.aws_key_pair.key_pair.key_name
-  security_groups = [aws_security_group.server_sg_c.id]
-  user_data = <<-EOF
+  ami                         = "ami-04dd23e62ed049936"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.subnet_c_1.id
+  key_name                    = data.aws_key_pair.key_pair.key_name
+  security_groups             = [aws_security_group.server_sg_c.id]
+  associate_public_ip_address = true
+  user_data                   = <<-EOF
   #!/bin/bash
   sudo apt update -y
   EOF
@@ -79,9 +80,9 @@ resource "aws_instance" "server_c" {
 }
 
 resource "aws_security_group" "server_sg_c" {
-  name        = "server-b-security-group"
+  name        = "server-c-security-group"
   description = "Allow SSH and HTTP traffic"
-  vpc_id      = aws_vpc.vpc_b.id
+  vpc_id      = aws_vpc.vpc_c.id
 
   ingress {
     description = "Allow SSH"
@@ -91,19 +92,12 @@ resource "aws_security_group" "server_sg_c" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description = "Allow HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   ingress {
     description = "Allow HTTPS"
-    from_port = 443
-    protocol  = "tcp"
-    to_port   = 443
+    from_port   = 443
+    protocol    = "tcp"
+    to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
   }
 

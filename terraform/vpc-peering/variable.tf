@@ -1,4 +1,4 @@
 variable "vpc_enabled" {
-  type = bool
+  type    = bool
   default = true
 }
