@@ -28,7 +28,7 @@ jobs:
 
     - name: Sync files to S3
       run: |
-        aws s3 sync cloudfront/web-site s3://bucket-static-web --delete --acl public-read
+        aws s3 sync cloudfront/web-site s3://terraform-backend-yannick --delete --acl public-read
 
 #    - name: Invalidate CloudFront (optional)
 #      run: |
