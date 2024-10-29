@@ -3,3 +3,5 @@
 /gitlab/logs/
 .terraform/
 DevOps-Projects
+angular-python/angular-frontend/*.zip
+angular-python/python-backend/*.zip

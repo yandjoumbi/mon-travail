@@ -3,7 +3,7 @@ name: Deploy Static Website to S3
 on:
   push:
     branches:
-      - yannick
+      - yan
 
 jobs:
   deploy:
