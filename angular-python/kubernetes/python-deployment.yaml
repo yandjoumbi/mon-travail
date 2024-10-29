@@ -1,0 +1,41 @@
+# python-backend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-backend
+  template:
+    metadata:
+      labels:
+        app: flask-backend
+    spec:
+      containers:
+        - name: flask-backend
+          image: yandjoumbi/angular-python-backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FLASK_BACKEND_URL
+
+---
+# flask-backend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-backend-service
+spec:
+  selector:
+    app: flask-backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
