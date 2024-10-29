@@ -25,5 +25,5 @@ jobs:
       # Step 3: Upload the zip file to S3
       - name: Upload zip to S3
         run: |
-          aws s3 cp --recursive . s3://all-purposes-yannick-bucket/
+          find angular-python -type f -name "*.zip" -exec aws s3 cp {} s3://all-purposes-yannick-bucket/ \;
 
