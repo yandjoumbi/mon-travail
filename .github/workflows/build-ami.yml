@@ -35,3 +35,4 @@ jobs:
         run: |
           packer init .
           packer build -var "aws_region=us-west-2" angular-python/packer/ubuntu-base-ami.pkr.hcl
+
