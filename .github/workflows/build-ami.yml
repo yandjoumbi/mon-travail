@@ -34,5 +34,7 @@ jobs:
       - name: Build AMI
         run: |
           packer init angular-python/packer
-          packer build -var "aws_region=us-west-2" angular-python/packer/ubuntu-base-ami.pkr.hcl
+          packer fmt angular-python/packer/*.pkr.hcl
+          packer validate angular-python/packer/*.pkr.hcl
+          packer build angular-python/packer/ubuntu-base-ami.pkr.hcl
 
