@@ -3,7 +3,7 @@ name: Upload zip files to AWS S3 bucket
 on:
   push:
     branches:
-      - yannick
+      - y
 
 jobs:
   upload_to_s3:
