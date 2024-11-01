@@ -38,3 +38,6 @@ jobs:
           packer validate angular-python/packer/*.pkr.hcl
           packer build angular-python/packer/ubuntu-base-ami.pkr.hcl
 
+
+
+
