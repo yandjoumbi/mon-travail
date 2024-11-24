@@ -1,4 +1,3 @@
-
 # VPC
 resource "aws_vpc" "app_vpc" {
   cidr_block = local.vpc_cidr
@@ -80,3 +79,9 @@ resource "aws_route_table_association" "private_rt_asso_2" {
   route_table_id = aws_route_table.private_rt.id
   subnet_id      = aws_subnet.app_private_subnet_2.id
 }
+
+
+
+
+
+

@@ -1,5 +1,4 @@
 # monitoring auto scaling for web layer
-
 resource "aws_autoscaling_policy" "web-autoscaling-cpu-policy" {
   name                   = "web-autoscaling-cpu-policy"
   autoscaling_group_name = aws_autoscaling_group.web_asg.id
@@ -8,7 +7,6 @@ resource "aws_autoscaling_policy" "web-autoscaling-cpu-policy" {
   cooldown               = 60
   policy_type            = "SimpleScaling"
 }
-
 
 resource "aws_cloudwatch_metric_alarm" "web-cloudwatch-cpu-alarm" {
   alarm_name          = "web-cloudwatch-cpu-alarm"
@@ -29,7 +27,6 @@ resource "aws_cloudwatch_metric_alarm" "web-cloudwatch-cpu-alarm" {
 
   alarm_actions = [aws_autoscaling_policy.web-autoscaling-cpu-policy.arn]
 }
-
 
 resource "aws_autoscaling_policy" "web-custom-cpu-policy-scaledown" {
   name                   = "custom-cpu-policy-scaledown"
